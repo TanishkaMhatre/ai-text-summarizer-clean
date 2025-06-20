@@ -1,26 +1,46 @@
 import streamlit as st
 from transformers import pipeline
 
+# Set page configuration
+st.set_page_config(page_title="🧠 AI Text Summarizer", page_icon="🧠", layout="centered")
+
+# Page title and subtitle with styling
+st.markdown("""
+    <h1 style='text-align: center; color: #4CAF50;'>🧠 AI Text Summarizer</h1>
+    <p style='text-align: center; font-size: 18px;'>Paste a paragraph or article below, and get a concise AI-generated summary instantly!</p>
+""", unsafe_allow_html=True)
+
 # Load the summarization model
 try:
     summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
 except Exception as e:
-    st.error(f"Model load error: {e}")
+    st.error("❌ Model load error:")
+    st.exception(e)
+    st.stop()
 
-st.set_page_config(page_title="AI Text Summarizer")
-st.title("🧠 AI Text Summarizer")
-st.write("Enter an article or paragraph. The AI will generate a summary.")
+# User input box
+user_input = st.text_area("📄 Paste your paragraph here:", height=300)
 
-user_input = st.text_area("📄 Paste your paragraph here", height=300)
-
-if st.button("Summarize"):
+# Summarize button logic
+if st.button("🚀 Summarize"):
     if user_input.strip() != "":
-        with st.spinner("Summarizing..."):
+        with st.spinner("✨ Summarizing... Please wait..."):
             try:
                 summary = summarizer(user_input, max_length=130, min_length=30, do_sample=False)
-                st.subheader("📝 Summary:")
-                st.success(summary[0]['summary_text'])
+                st.markdown("### 📝 Summary:")
+                st.markdown(
+                    f"<div style='background-color:#f0f2f6; padding:15px; border-radius:10px; font-size:16px;'>{summary[0]['summary_text']}</div>",
+                    unsafe_allow_html=True
+                )
             except Exception as e:
-                st.error(f"Error during summarization:\n{e}")
+                st.error("❌ Error during summarization:")
+                st.exception(e)
     else:
         st.warning("⚠️ Please enter some text to summarize.")
+
+# Footer
+st.markdown("---")
+st.markdown(
+    "<p style='text-align: center; font-size: 14px;'>Made with ❤️ by Tanishka</p>",
+    unsafe_allow_html=True
+)
